@@ -3,7 +3,7 @@
 This project is a simple Java-based banking system designed to demonstrate **unit testing** and **mutation testing** using the **PIT (Pitest)** mutation testing tool in IntelliJ IDEA.
 
 ## 📁 Project Structure
-
+```bash
 SEG3103_A4_PitTest_Mutation_Testing/
 ├── src/
 │ ├── main/java/com/banking/
@@ -18,7 +18,7 @@ SEG3103_A4_PitTest_Mutation_Testing/
 │ └── CalculatorAndComplexLogicTest.java
 ├── pom.xml
 └── README.md
-
+```
 
 ---
 
