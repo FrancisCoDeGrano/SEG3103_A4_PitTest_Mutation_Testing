@@ -37,12 +37,25 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- JUnit 5 Parameterized Tests -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito for Mocking (if needed for future tests) -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito JUnit Jupiter Integration -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -62,6 +75,161 @@
                 </configuration>
             </plugin>
 
+            <!-- Maven Surefire Plugin for Running Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                    <argLine>-Xmx1024m</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- PIT Mutation Testing Plugin -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest-maven.version}</version>
+                <configuration>
+                    <!-- Target Classes for Mutation Testing -->
+                    <targetClasses>
+                        <param>com.banking.*</param>
+                    </targetClasses>
+
+                    <!-- Test Classes to Run -->
+                    <targetTests>
+                        <param>com.banking.*Test</param>
+                        <param>com.banking.*Tests</param>
+                    </targetTests>
+
+                    <!-- Mutators to Use -->
+                    <mutators>
+                        <mutator>DEFAULTS</mutator>
+                        <mutator>STRONGER</mutator>
+                    </mutators>
+
+                    <!-- Output Formats -->
+                    <outputFormats>
+                        <outputFormat>HTML</outputFormat>
+                        <outputFormat>XML</outputFormat>
+                        <outputFormat>CSV</outputFormat>
+                    </outputFormats>
+
+                    <!-- Report Directory -->
+                    <reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
+
+                    <!-- Increase timeout for complex calculations -->
+                    <timeoutConstant>10000</timeoutConstant>
+                    <timeoutFactor>2.0</timeoutFactor>
+
+                    <!-- Thread Configuration -->
+                    <threads>4</threads>
+
+                    <!-- Mutation Score Threshold (Optional) -->
+                    <mutationThreshold>70</mutationThreshold>
+                    <coverageThreshold>80</coverageThreshold>
+
+                    <!-- Verbose Output -->
+                    <verbose>true</verbose>
+
+                    <!-- Include Launch Classpath -->
+                    <!--<includeLaunchClasspath>false</includeLaunchClasspath>-->
+
+                    <!-- Additional JVM Args -->
+                    <jvmArgs>
+                        <value>-Xmx1024m</value>
+                        <value>-XX:MaxPermSize=256m</value>
+                    </jvmArgs>
+
+                    <!-- Exclude certain classes/methods if needed -->
+                    <excludedClasses>
+                        <!-- Example: Exclude main methods or configuration classes -->
+                        <!-- <param>com.banking.Main</param> -->
+                    </excludedClasses>
+
+                    <excludedMethods>
+                        <!-- Example: Exclude getter/setter methods -->
+                        <!-- <param>get*</param> -->
+                        <!-- <param>set*</param> -->
+                    </excludedMethods>
+                </configuration>
+
+                <!-- Execution Configuration for Different Phases -->
+                <executions>
+                    <execution>
+                        <id>pit-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>mutationCoverage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!-- Profile for Basic Testing (Member 1) -->
+        <profile>
+            <id>basic-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <configuration>
+                            <targetTests>
+                                <param>com.banking.BasicAccountOperationsTest</param>
+                            </targetTests>
+                            <reportsDirectory>${project.build.directory}/pit-reports-basic</reportsDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile for Advanced Testing (Member 2) -->
+        <profile>
+            <id>advanced-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <configuration>
+                            <targetTests>
+                                <param>com.banking.BasicAccountOperationsTest</param>
+                                <param>com.banking.AdvancedAccountFeaturesTest</param>
+                            </targetTests>
+                            <reportsDirectory>${project.build.directory}/pit-reports-advanced</reportsDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!-- Profile for Complete Testing (Member 3) -->
+        <profile>
+            <id>complete-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <configuration>
+                            <targetTests>
+                                <param>com.banking.*Test</param>
+                            </targetTests>
+                            <reportsDirectory>${project.build.directory}/pit-reports-complete</reportsDirectory>
+                            <mutationThreshold>85</mutationThreshold>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
