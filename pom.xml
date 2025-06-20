@@ -1,33 +1,174 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.performance</groupId>
-    <artifactId>SEG3103_A4_PitTest_Mutation_Testing</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>com.banking</groupId>
+    <artifactId>banking-system-mutation-testing</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Banking System - Mutation Testing Demo</name>
+    <description>A demonstration project for mutation testing with PIT in IntelliJ IDEA</description>
 
     <properties>
-        <maven.compiler.source>24</maven.compiler.source>
-        <maven.compiler.target>24</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Test Dependencies Versions -->
+        <junit.version>5.9.2</junit.version>
+        <mockito.version>5.1.1</mockito.version>
+
+        <!-- Plugin Versions -->
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M9</maven-surefire-plugin.version>
+        <pitest-maven.version>1.11.4</pitest-maven.version>
+        <pitest-junit5-plugin.version>1.1.2</pitest-junit5-plugin.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
+        <!-- JUnit 5 Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.1</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <!-- JUnit 5 Parameterized Tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito for Mocking (if needed for future tests) -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Mockito JUnit Jupiter Integration -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+
+            <!-- Maven Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- Maven Surefire Plugin for Running Tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests.java</include>
+                    </includes>
+                    <argLine>-Xmx1024m</argLine>
+                </configuration>
+            </plugin>
+
+            <!-- PIT Mutation Testing Plugin -->
+            <plugin>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-maven</artifactId>
+                <version>${pitest-maven.version}</version>
+                <configuration>
+                    <!-- Target Classes for Mutation Testing -->
+                    <targetClasses>
+                        <param>com.banking.*</param>
+                    </targetClasses>
+
+                    <!-- Test Classes to Run -->
+                    <targetTests>
+                        <param>com.banking.*Test</param>
+                        <param>com.banking.*Tests</param>
+                    </targetTests>
+
+                    <!-- Mutators to Use -->
+                    <mutators>
+                        <mutator>DEFAULTS</mutator>
+                        <mutator>STRONGER</mutator>
+                    </mutators>
+
+                    <!-- Output Formats -->
+                    <outputFormats>
+                        <outputFormat>HTML</outputFormat>
+                        <outputFormat>XML</outputFormat>
+                        <outputFormat>CSV</outputFormat>
+                    </outputFormats>
+
+                    <!-- Report Directory -->
+                    <reportsDirectory>${project.build.directory}/pit-reports</reportsDirectory>
+
+                    <!-- Increase timeout for complex calculations -->
+                    <timeoutConstant>10000</timeoutConstant>
+                    <timeoutFactor>2.0</timeoutFactor>
+
+                    <!-- Thread Configuration -->
+                    <threads>4</threads>
+
+                    <!-- Mutation Score Threshold (Optional) -->
+                    <mutationThreshold>70</mutationThreshold>
+                    <coverageThreshold>80</coverageThreshold>
+
+                    <!-- Verbose Output -->
+                    <verbose>true</verbose>
+
+                    <!-- Include Launch Classpath -->
+                    <!--<includeLaunchClasspath>false</includeLaunchClasspath>-->
+
+                    <!-- Additional JVM Args -->
+                    <jvmArgs>
+                        <value>-Xmx1024m</value>
+                        <value>-XX:MaxPermSize=256m</value>
+                    </jvmArgs>
+
+                    <!-- Exclude certain classes/methods if needed -->
+                    <excludedClasses>
+                        <!-- Example: Exclude main methods or configuration classes -->
+                        <!-- <param>com.banking.Main</param> -->
+                    </excludedClasses>
+
+                    <excludedMethods>
+                        <!-- Example: Exclude getter/setter methods -->
+                        <!-- <param>get*</param> -->
+                        <!-- <param>set*</param> -->
+                    </excludedMethods>
+                </configuration>
+
+                <!-- Execution Configuration for Different Phases -->
+                <executions>
+                    <execution>
+                        <id>pit-report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>mutationCoverage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
